@@ -1,1 +1,1 @@
-# horseTendon_RNAseq
+# horseTendon_scRNAseq
