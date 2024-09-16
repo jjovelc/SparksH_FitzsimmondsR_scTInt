@@ -5,7 +5,7 @@ library(Matrix)
 library(patchwork)
 library(SeuratWrappers)
 
-setwd("/Users/juanjovel/OneDrive/jj/UofC/data_analysis/hollySparks/dataIntegration_wSeurat/rename_with_own_orthology-renaming")
+setwd("/Users/juanjovel/OneDrive/jj/UofC/data_analysis/hollySparks/dataIntegration_wSeurat/human_and_mouse")
 
 mouse <- readRDS("mouse.rds")
 
