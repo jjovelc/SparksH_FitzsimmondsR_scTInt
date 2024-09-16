@@ -5,7 +5,7 @@ library(Matrix)
 library(patchwork)
 library(SeuratWrappers)
 
-setwd("/Users/juanjovel/OneDrive/jj/UofC/data_analysis/hollySparks/dataIntegration_wSeurat/human_and_mouse")
+setwd("/Users/juanjovel/OneDrive/jj/UofC/data_analysis/hollySparks/dataIntegration_wSeurat/rename_with_own_orthology-renaming")
 
 mouse <- readRDS("mouse.rds")
 
@@ -220,15 +220,8 @@ anchors.rpca <- FindIntegrationAnchors(object.list = objects, anchor.features = 
 num_anchors_rpca <- nrow(anchors.rpca@anchors)
 print(paste("Number of RPCA anchors:", num_anchors_rpca))
 
-
-
-
-
 # Integrate data using the anchors found by CCA
 integrated_data_cca <- IntegrateData(anchorset = anchors.cca, dims = 1:30)
-
-
-
 
 ### Create plots for each integration method
 plotIntegratedData <- function(obj, keyword_string){
@@ -263,5 +256,3 @@ plotIntegratedData(obj, "rpca")
 plotIntegratedData(obj, "harmony")
 plotIntegratedData(obj, "mnn")
 plotIntegratedData(obj, "scvi")
-
-saveRDS(obj, file = "int_mouse_human_seurat_obj.rds")

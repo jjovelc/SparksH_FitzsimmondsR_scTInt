@@ -1,6 +1,5 @@
 library(biomaRt)
 
-
 setwd('/Users/juanjovel/OneDrive/jj/UofC/data_analysis/hollySparks/dataIntegration_wSeurat/horse_and_mouse')
 
 horse_obj <- readRDS('horse.rds')
