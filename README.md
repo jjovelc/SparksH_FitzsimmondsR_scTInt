@@ -1,1 +1,1 @@
-# horseTendon_scRNAseq
+# Integration of tendon scRNAseq data from different species
