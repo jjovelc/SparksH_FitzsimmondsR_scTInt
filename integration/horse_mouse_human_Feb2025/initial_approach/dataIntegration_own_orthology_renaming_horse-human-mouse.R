@@ -5,11 +5,8 @@ library(Matrix)
 library(patchwork)
 library(SeuratWrappers)
 
-options(future.globals.maxSize = 48000 * 1024^2)  # Set to 10GB
-getOption("future.globals.maxSize") / (1024^2)
-
 # Set your working directory
-setwd("/work/vetmed_data/jj/projects/hollySparks/dataIntegration/horse_mouse_human_Feb2025/seurat_analysis")
+setwd("/work/vetmed_data/jj/projects/hollySparks/dataIntegration/horse_mouse_human_Feb-2025/seurat_analysis")
 
 # Define a prefix for file naming
 prefix <- "horse-human-mouse"
@@ -265,31 +262,23 @@ obj <- merge(mouse_seurat, y = list(horse_seurat, human_seurat),
              add.cell.ids = c("mouse", "horse", "human"), 
              project = "obj_merged")
 
-print("Object successfully merged")
-
 # Subset to include only cells with at least 1000 features
 obj <- subset(obj, nFeature_RNA > 1000)
 
-# Join the automatically split layers
+# Join layers in the merged object before splitting
 obj <- JoinLayers(obj)
 
-# Now re-split by orig.ident
+# Split the RNA assay by 'orig.ident'
 obj[["RNA"]] <- split(obj[["RNA"]], f = obj$orig.ident)
 
-# store mitochondrial percentage in object meta data
-obj <- PercentageFeatureSet(obj, pattern = "^MT-", col.name = "percent.mt")
-
-# run sctransform
-obj <- SCTransform(obj, vars.to.regress = "percent.mt", verbose = FALSE)
-
-# ---------------------------
-# Data Preprocessing
-# --------------------------
-
 # ---------------------------
 # Data Preprocessing
 # ---------------------------
 
+# Normalize, identify variable features, and scale the data
+obj <- NormalizeData(obj)
+obj <- FindVariableFeatures(obj)
+obj <- ScaleData(obj)
 obj <- RunPCA(obj)
 
 # ---------------------------
@@ -297,21 +286,14 @@ obj <- RunPCA(obj)
 # ---------------------------
 
 # Perform initial clustering
+obj <- FindNeighbors(obj, dims = 1:30, reduction = "pca")
+obj <- FindClusters(obj, resolution = 2, cluster.name = "unintegrated_clusters")
 obj <- RunUMAP(obj, dims = 1:30, reduction = "pca", reduction.name = "umap.unintegrated")
 
 # Save UMAP plot of unintegrated data
 png(paste0(prefix, "_UMAPplot_unintegrated.png"), width = 1600, height = 800)
 DimPlot(obj, reduction = "umap.unintegrated", group.by = "orig.ident")
 dev.off()
-
-# Check point
-print(class(obj))
-print(names(obj@assays))
-print(DefaultAssay(obj))
-saveRDS(obj, paste0(prefix, "_pre_integration.rds"))
-
-
-
 
 # ---------------------------
 # Data Integration
@@ -355,31 +337,20 @@ obj <- IntegrateLayers(
   object = obj, method = CCAIntegration,
   orig.reduction = "pca", new.reduction = "integrated.cca",
   dims = 1:10,
-  k.anchor = 20,         # Add this
-  normalization.method = "SCT",  # Add this
-  reference = NULL,      # Add this
-  verbose = TRUE         # Change to TRUE for more output
+  verbose = FALSE
 )
 
 plotIntegratedData(obj, "cca", prefix)
 
-# Save the RDS file
-saveRDS(obj, paste0(prefix, "_post_cca_integration.rds"))
-
 ## Perform RPCA integration
-# RPCA integration with modified parameters
+options(future.globals.maxSize = 12 * 1024^3)
 obj <- IntegrateLayers(
-  object = obj, 
-  method = RPCAIntegration,
-  orig.reduction = "pca", 
-  new.reduction = "integrated.rpca",
+  object = obj, method = RPCAIntegration,
+  orig.reduction = "pca", new.reduction = "integrated.rpca",
   dims = 1:10,
   k.anchor = 30,
-  group.by = "orig.ident",  # Use metadata column instead of relying on split assays
-  verbose = TRUE,  # Enable verbose output
-  normalization.method = "SCT"  # Specify normalization method
+  verbose = FALSE
 )
-
 
 plotIntegratedData(obj, "rpca", prefix)
 
