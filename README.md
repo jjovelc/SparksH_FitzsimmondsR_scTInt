@@ -4,11 +4,10 @@ This repository contains code and workflows for integrating single-cell RNA-seq 
 
 ## 📁 Repository Structure
 
-├── data/ # Input .rds files for each species ├── results/ # Outputs: integrated Seurat objects, plots, etc. ├── scripts/ # Main R scripts for preprocessing and integration └── README.md # You're here!
-
-markdown
-Copy
-Edit
+- `data/` – Input `.rds` files for mouse, horse, and human scRNA-seq data
+- `results/` – Output files including integrated Seurat objects and UMAP plots
+- `scripts/` – Main R script for integration and analysis
+- `README.md` – This documentation file
 
 ## 🧪 Integration Methods Included
 
