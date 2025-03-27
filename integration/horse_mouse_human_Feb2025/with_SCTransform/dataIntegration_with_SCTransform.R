@@ -349,7 +349,7 @@ plotIntegratedData <- function(obj, keyword_string, prefix){
   cat("UMAP plot was saved to file: ", umapplot_filename, "\n")
 }
 
-#
+
 ## Perform CCA integration
 obj <- IntegrateLayers(
   object = obj, method = CCAIntegration,
@@ -363,11 +363,12 @@ obj <- IntegrateLayers(
 
 plotIntegratedData(obj, "cca", prefix)
 
+print("CCA integration successfully completed")
+
 # Save the RDS file
 saveRDS(obj, paste0(prefix, "_post_cca_integration.rds"))
 
 ## Perform RPCA integration
-# RPCA integration with modified parameters
 obj <- IntegrateLayers(
   object = obj, 
   method = RPCAIntegration,
@@ -375,13 +376,13 @@ obj <- IntegrateLayers(
   new.reduction = "integrated.rpca",
   dims = 1:10,
   k.anchor = 30,
-  group.by = "orig.ident",  # Use metadata column instead of relying on split assays
-  verbose = TRUE,  # Enable verbose output
-  normalization.method = "SCT"  # Specify normalization method
+  normalization.method = "SCT",
+  verbose = TRUE
 )
 
-
 plotIntegratedData(obj, "rpca", prefix)
+
+print("RCPA integration successfully completed")
 
 ## Perform Harmony integration
 obj <- IntegrateLayers(
@@ -392,30 +393,9 @@ obj <- IntegrateLayers(
 
 plotIntegratedData(obj, "harmony", prefix)
 
-## Perform FastMNN integration
-obj <- IntegrateLayers(
-  object = obj, method = FastMNNIntegration,
-  new.reduction = "integrated.mnn",
-  verbose = FALSE
-)
+print("Harmony integration successfully completed")
 
-plotIntegratedData(obj, "mnn", prefix)
-
-
-library(reticulate)
-use_condaenv("/work/vetmed_data/mamba/envs/scvi", required = TRUE)
-
-# Perform scVI integration
-# Ensure scVI environment is set up as per scVI-tools instructions
-obj <- IntegrateLayers(
-  object = obj, method = scVIIntegration,
-  new.reduction = "integrated.scvi",
-  conda_env = "/work/vetmed_data/mamba/envs/scvi/", verbose = FALSE
-)
-
-plotIntegratedData(obj, "scvi", prefix)
-
-
-# Save integrated RDS object
+# Step 4: Visualize and save
 saveRDS(obj, paste0(prefix, "object_postIntegration.rds"))
 
+print("Pipeline finished successfully")
